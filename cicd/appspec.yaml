@@ -1,0 +1,9 @@
+version: 0.0
+Resources:
+  - TargetService:
+      Type: AWS::EKS::Service
+      Properties:
+        TaskDefinition: braintaskk-deployment
+        LoadBalancerInfo:
+          ContainerName: braintaskk
+          ContainerPort: 80
