@@ -5,15 +5,15 @@ phases:
     commands:
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region us-east-1 |
-        docker login --username AWS --password-stdin 806700449883.dkr.ecr.us-east-1.amazonaws.com/braintask
+        docker login --username AWS --password-stdin 906865226128.dkr.ecr.us-east-1.amazonaws.com/braintask
   build:
     commands:
       - echo Build started on `date`
       - docker build -t braintask -f docker/Dockerfile .
-      - docker tag braintask:latest 806700449883.dkr.ecr.us-east-1.amazonaws.com/braintask:latest
+      - docker tag braintask:latest 906865226128.dkr.ecr.us-east-1.amazonaws.com/braintask
 
   post_build:
     commands:
       - echo Pushing image to ECR...
-      - docker push 806700449883.dkr.ecr.us-east-1.amazonaws.com/braintask:latest
+      - docker push 906865226128.dkr.ecr.us-east-1.amazonaws.com/braintask
       - echo Build completed
