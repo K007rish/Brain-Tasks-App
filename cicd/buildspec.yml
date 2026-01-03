@@ -18,7 +18,3 @@ phases:
       - echo Pushing the Docker image...
       - docker push 906865226128.dkr.ecr.us-east-1.amazonaws.com/braintask:latest
       - echo Build completed on `date`
-
-artifacts:
-  files:
-    - '**/*'
