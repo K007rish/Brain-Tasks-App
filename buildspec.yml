@@ -1,7 +1,47 @@
 version: 0.2
 
+env:
+  variables:
+    AWS_DEFAULT_REGION: us-east-1
+    CLUSTER_NAME: braintask2
+    ECR_REPO: braintask
+
 phases:
+  install:
+    commands:
+      - echo "Installing dependencies"
+      - yum install -y docker
+      - curl -o kubectl https://amazon-eks.s3.us-east-1.amazonaws.com/1.29.0/2023-11-14/bin/linux/amd64/kubectl
+      - chmod +x kubectl
+      - mv kubectl /usr/local/bin/
+      - docker --version
+      - kubectl version --client
+
+  pre_build:
+    commands:
+      - echo "Logging in to Amazon ECR"
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION |
+        docker login --username AWS --password-stdin \
+        $ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+
   build:
     commands:
-      - echo "Build started"
-      - echo "CodePipeline is working"
+      - echo "Building Docker image"
+      - docker build -t $ECR_REPO:latest .
+      - docker tag $ECR_REPO:latest \
+        $ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPO:latest
+
+  post_build:
+    commands:
+      - echo "Pushing image to ECR"
+      - docker push \
+        $ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPO:latest
+      - echo "Deploying to EKS"
+      - aws eks update-kubeconfig --region $AWS_DEFAULT_REGION --name $CLUSTER_NAME
+      - kubectl apply -f k8s/deployment.yaml
+      - kubectl apply -f k8s/service.yaml
+      - kubectl rollout status deployment/braintask
+
+artifacts:
+  files:
+    - '**/*'
