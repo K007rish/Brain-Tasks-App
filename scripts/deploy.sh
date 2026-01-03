@@ -1,9 +1,11 @@
 #!/bin/bash
 set -e
 
-echo "Deploying Brain Tasks application..."
+echo "Updating kubeconfig"
+aws eks update-kubeconfig --region us-east-1 --name braintask2
 
+echo "Deploying application"
 kubectl apply -f k8s/deployment.yaml
 kubectl apply -f k8s/service.yaml
 
-echo "Deployment completed successfully."
+kubectl rollout status deployment/braintask
